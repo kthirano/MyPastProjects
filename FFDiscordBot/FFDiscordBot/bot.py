@@ -38,7 +38,6 @@ if __name__ == '__main__':
         await ctx.send(r_strs.MAYTHEODDS + str(random.choice(range(start, end+1))))
 
     @bot.command(name='create-channel', help = 'Creates new text channel')
-    @commands.has_role('Admin')
     async def create_channel(ctx, channel_name = r_strs.DEFAULT_CHANNEL_NAME):
         guild = ctx.guild
         existing_channel = discord.utils.get(guild.channels, name=channel_name)
@@ -49,7 +48,7 @@ if __name__ == '__main__':
             await ctx.send(r_strs.CHANNEL_EXISTS + channel_name)
             
     @bot.command(name='delete-channel', help = 'Deletes text channel')
-    @commands.has_role('Admin')
+    #@commands.has_role('Admin')
     async def delete_channel(ctx, channel_name = r_strs.DEFAULT_CHANNEL_NAME):
         guild=ctx.guild
         existing_channel = discord.utils.get(guild.channels, name=channel_name)
@@ -60,7 +59,7 @@ if __name__ == '__main__':
         else:
             await existing_channel.delete()
             
-    @bot.command(name='new-group', help = 'Creates a new role for groups people want to get pinged for')
+    @bot.command(name='new-role', help = 'Creates a new role for groups people want to get pinged for')
     async def new_role(ctx, role_name):
         guild=ctx.guild
         existing_role = discord.utils.get(guild.roles, name= role_name)
@@ -72,9 +71,6 @@ if __name__ == '__main__':
             new_role = await guild.create_role(name = role_name)
             sent_message = await role_assign_channel.send(r_strs.NEWROLE_1 + r_strs.REACTIONS[reaction] + r_strs.NEWROLE_2 + role_name + '\n' + r_strs.NEWROLE_3 + new_role.mention)
             await sent_message.add_reaction(r_strs.REACTION_CODE[reaction])
-            """def check(reaction, user):
-                return user != bot.user and 
-            reaction, user = await bot.wait_for('reaction_add'"""
         else:
             await ctx.send(r_strs.ROLE_ALREADY_EXISTS)
 
@@ -83,8 +79,28 @@ if __name__ == '__main__':
     async def on_reaction_add(reaction, user):
         channel = reaction.message.channel
         if channel.name =='assign-roles':
-            reaction, role_name = r_strs.processRoleMessage(reaction.message.content)
-            print(reaction, role_name)
+            emote, role_name = r_strs.processRoleMessage(reaction.message.content)
+            guild = reaction.message.guild
+            guild_user = await guild.fetch_member(user.id)
+            if reaction.emoji == emote and user != bot.user:
+                await guild_user.add_roles(discord.utils.get(guild.roles, name=role_name))
+
+#needs fixing
+            
+    @bot.event
+    async def on_reaction_remove(reaction, user):
+        channel = reaction.message.channel
+        if channel.name == 'assign-roles':
+            emote, role_name = r_strs.processRoleMessage(reaction.message.content)
+            guild = reaction.message.guild
+            guild_user = await guild.fetch_member(user.id)
+            if reaction.emoji == emote:
+                role = discord.utils.get(guild.roles, name=role_name)
+                await guild_user.remove_roles(role)
+                if len(role.members()) == 0:
+                    await role.delete()
+                    await reaction.message.delete()
+            
             
             
 

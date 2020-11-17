@@ -2,7 +2,7 @@ class r_strs:
     ILLEGAL_CHANNELS = ['general', 'assign_roles']
     ILLEGAL_ROLES = ['Admin', 'ForFunPythonApp']
     NEWROLE_1 = "React with "
-    NEWROLE_2 = " to receive notificaitions when people want to play "
+    NEWROLE_2 = " to receive notificaitions when someone pings group "
     NEWROLE_3 = "To use this, "
     REACTIONS = [':thumbsup:' , ':muscle:', ':eyes:' , ':yum:', ':ok_hand:', ':rice_ball:', ':trophy:', ':alien:']
     REACTION_CODE = ['\N{THUMBS UP SIGN}','\N{FLEXED BICEPS}','\N{EYES}','\N{FACE SAVOURING DELICIOUS FOOD}','\N{OK HAND SIGN}','\N{RICE BALL}','\N{TROPHY}','\N{EXTRATERRESTRIAL ALIEN}']
