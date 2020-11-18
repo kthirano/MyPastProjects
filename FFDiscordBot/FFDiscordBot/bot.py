@@ -1,6 +1,7 @@
 #https://realpython.com/how-to-make-a-discord-bot-python/
 #ideas: connect 4 bot
 #assign roles to members using reactions
+#picture among us
 
 import os
 from discord.ext import commands
@@ -43,7 +44,6 @@ if __name__ == '__main__':
         existing_channel = discord.utils.get(guild.channels, name=channel_name)
         if not existing_channel:
             await guild.create_text_channel(channel_name, category = discord.utils.get(guild.categories, name = r_strs.BOT_TEXTCHANNEL))
-            await ctx.send()
         else:
             await ctx.send(r_strs.CHANNEL_EXISTS + channel_name)
             
@@ -66,7 +66,7 @@ if __name__ == '__main__':
         if role_name in r_strs.ILLEGAL_ROLES:
             await ctx.send(r_strs.TRYNA_BE_SNEAKY)
         elif not existing_role:
-            role_assign_channel = discord.utils.get(guild.channels, name='assign-roles')
+            role_assign_channel = discord.utils.get(guild.channels, name=r_strs.ASSIGN_ROLES)
             reaction = random.choice(range(len(r_strs.REACTIONS)))
             new_role = await guild.create_role(name = role_name)
             sent_message = await role_assign_channel.send(r_strs.NEWROLE_1 + r_strs.REACTIONS[reaction] + r_strs.NEWROLE_2 + role_name + '\n' + r_strs.NEWROLE_3 + new_role.mention)
@@ -76,30 +76,30 @@ if __name__ == '__main__':
 
 
     @bot.event
-    async def on_reaction_add(reaction, user):
-        channel = reaction.message.channel
-        if channel.name =='assign-roles':
-            emote, role_name = r_strs.processRoleMessage(reaction.message.content)
-            guild = reaction.message.guild
-            guild_user = await guild.fetch_member(user.id)
-            if reaction.emoji == emote and user != bot.user:
+    async def on_raw_reaction_add(payload):
+        guild = bot.get_guild(payload.guild_id)
+        channel = guild.get_channel(payload.channel_id)
+        if channel.name == r_strs.ASSIGN_ROLES:
+            message = await channel.fetch_message(payload.message_id)
+            emote, role_name = r_strs.processRoleMessage(message.content)
+            guild_user = await guild.fetch_member(payload.user_id)
+            if payload.emoji.name == emote and payload.user_id != bot.user.id:
                 await guild_user.add_roles(discord.utils.get(guild.roles, name=role_name))
 
-#needs fixing
-            
     @bot.event
-    async def on_reaction_remove(reaction, user):
-        channel = reaction.message.channel
-        if channel.name == 'assign-roles':
-            emote, role_name = r_strs.processRoleMessage(reaction.message.content)
-            guild = reaction.message.guild
-            guild_user = await guild.fetch_member(user.id)
-            if reaction.emoji == emote:
+    async def on_raw_reaction_remove(payload):
+        guild = bot.get_guild(payload.guild_id)
+        channel = guild.get_channel(payload.channel_id)
+        if channel.name == r_strs.ASSIGN_ROLES:
+            message = await channel.fetch_message(payload.message_id)
+            emote, role_name = r_strs.processRoleMessage(message.content)
+            guild_user = await guild.fetch_member(payload.user_id)
+            if payload.emoji.name == emote:
                 role = discord.utils.get(guild.roles, name=role_name)
                 await guild_user.remove_roles(role)
-                if len(role.members()) == 0:
+                if len(role.members) == 0:
                     await role.delete()
-                    await reaction.message.delete()
+                    await message.delete()
             
             
             
