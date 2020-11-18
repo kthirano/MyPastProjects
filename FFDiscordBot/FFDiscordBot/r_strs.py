@@ -12,6 +12,7 @@ class r_strs:
     DEFAULT_CHANNEL_NAME = 'just-chatting'
     TRYNA_BE_SNEAKY = "Wow, you think you're sooo sneaky don't you?"
     ROLE_ALREADY_EXISTS = 'Role already exists'
+    ASSIGN_ROLES = 'assign-role'
 
     @staticmethod
     def processRoleMessage(message):
